@@ -6,9 +6,6 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  icons: {
-    icon: '/favicon.ico',     
-  },
   title: 'MediSage - AI-Powered Symptom Analysis',
   description: 'Advanced healthcare management platform',
 }
