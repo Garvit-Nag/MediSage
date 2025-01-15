@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, JSX } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { UserButton, SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
 
-export default function Navbar(): JSX.Element {
+export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,12 +60,35 @@ export default function Navbar(): JSX.Element {
                 {link.label}
               </Link>
             ))}
-            <Link 
-              href="/get-started"
-              className="bg-teal-500 text-white px-6 py-2.5 rounded-lg hover:bg-teal-600 transition-all text-base font-semibold hover:shadow-lg ml-4"
-            >
-              Get Started
-            </Link>
+            
+            {!isSignedIn ? (
+              <div className="flex items-center gap-4">
+                <SignInButton mode="modal">
+                  <button className="text-gray-100 hover:text-white px-4 py-2 text-base font-medium transition-colors rounded-md hover:bg-gray-800">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="bg-teal-500 text-white px-6 py-2.5 rounded-lg hover:bg-teal-600 transition-all text-base font-semibold hover:shadow-lg">
+                    Get Started
+                  </button>
+                </SignUpButton>
+              </div>
+            ) : (
+              <div className="ml-4">
+                <UserButton 
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-10 h-10",
+                      userButtonPopoverCard: "bg-gray-900 border border-gray-700",
+                      userButtonPopoverActions: "text-gray-100",
+                      userButtonPopoverActionButton: "hover:bg-gray-800",
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -113,13 +138,35 @@ export default function Navbar(): JSX.Element {
               {link.label}
             </Link>
           ))}
-          <Link 
-            href="/get-started"
-            className="block bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-all text-base font-semibold hover:shadow-lg mt-4 text-center"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Get Started
-          </Link>
+          
+          {!isSignedIn ? (
+            <>
+              <SignInButton mode="modal">
+                <button className="w-full text-gray-100 hover:text-white hover:bg-gray-800 px-4 py-3 text-base font-medium rounded-md transition-colors text-center">
+                  Sign In
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="w-full bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-all text-base font-semibold hover:shadow-lg mt-4 text-center">
+                  Get Started
+                </button>
+              </SignUpButton>
+            </>
+          ) : (
+            <div className="flex justify-center pt-4">
+              <UserButton 
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "w-10 h-10",
+                    userButtonPopoverCard: "bg-gray-900 border border-gray-700",
+                    userButtonPopoverActions: "text-gray-100",
+                    userButtonPopoverActionButton: "hover:bg-gray-800",
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </nav>
