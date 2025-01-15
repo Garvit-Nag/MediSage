@@ -72,6 +72,7 @@ export default function Navbar() {
                   appearance={{
                     elements: {
                       avatarBox: "w-10 h-10",
+                      userButtonAvatarBox: "border-2 border-[#14B8A6] rounded-full", 
                       userButtonPopoverCard: "py-2",
                       userPreviewMainIdentifier: "font-semibold",
                     },
