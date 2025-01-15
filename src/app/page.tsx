@@ -9,7 +9,7 @@ import { WhyChooseUs } from '@/components/why-choose-us'
 import HowItWorks from '@/components/how-it-works'
 import FAQ from '@/components/faq'
 import { TestimonialsSection } from '@/components/testimonials-section'
-import PricingSection from '@/components/pricing'
+
 
 
 export default function Home() {
