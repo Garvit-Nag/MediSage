@@ -1,53 +1,70 @@
+// MediSage\src\app\api\verify-subscription\route.ts
 import { stripe } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
+import { getSubscription } from '@/lib/db';
+import { auth } from '@clerk/nextjs/server';
 
-export async function GET(request: Request) {
+export async function GET() {  // Removed unused request parameter
   try {
-    // Get the session ID from URL parameters
-    const { searchParams } = new URL(request.url);
-    const sessionId = searchParams.get('session_id');
-
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // Retrieve the checkout session
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['subscription'],
-    });
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Session not found' },
-        { status: 404 }
-      );
-    }
-
-    // Get the subscription details
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const subscription = session.subscription as any;  // Using 'any' due to Stripe types complexity
+    // Get userId from Clerk auth
+    const { userId } = await auth();  // Added await here
     
-    if (!subscription) {
-      return NextResponse.json(
-        { error: 'No subscription found' },
-        { status: 404 }
-      );
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Calculate expiry date
-    const expiryDate = new Date(subscription.current_period_end * 1000).toISOString();
+    // First check our database
+    const dbSubscription = await getSubscription(userId);
 
-    // Get plan name from session metadata
-    const planName = session.metadata?.planName || 'default';
+    // If no subscription found in DB, return basic plan
+    if (!dbSubscription) {
+      return NextResponse.json({
+        planName: 'basic',
+        status: 'inactive',
+        expiryDate: null
+      });
+    }
 
+    // Verify with Stripe if we have a subscription ID
+    if (dbSubscription.subscriptionId) {
+      try {
+        const stripeSubscription = await stripe.subscriptions.retrieve(
+          dbSubscription.subscriptionId
+        );
+
+        // Update response based on current Stripe status
+        const isActive = stripeSubscription.status === 'active';
+        const isCanceled = stripeSubscription.cancel_at_period_end;
+        const currentPeriodEnd = new Date(stripeSubscription.current_period_end * 1000);
+
+        // If subscription is canceled or expired, return basic plan
+        if (!isActive || (currentPeriodEnd < new Date())) {
+          return NextResponse.json({
+            planName: 'basic',
+            status: 'inactive',
+            expiryDate: null
+          });
+        }
+
+        // Return active subscription details
+        return NextResponse.json({
+          planName: dbSubscription.planName,
+          status: stripeSubscription.status,
+          expiryDate: currentPeriodEnd.toISOString(),
+          cancelAtPeriodEnd: isCanceled
+        });
+      } catch (stripeError) {
+        console.error('Error verifying with Stripe:', stripeError);
+        // If Stripe verification fails, fall back to DB data
+      }
+    }
+
+    // Fallback to database information if Stripe verification fails or isn't available
     return NextResponse.json({
-      planName,
-      expiryDate,
-      status: subscription.status,
-      customerId: session.customer,
+      planName: dbSubscription.planName,
+      status: dbSubscription.status,
+      expiryDate: dbSubscription.currentPeriodEnd,
+      cancelAtPeriodEnd: dbSubscription.cancelAtPeriodEnd
     });
 
   } catch (error) {

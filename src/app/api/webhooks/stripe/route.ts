@@ -2,15 +2,18 @@ import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
+import { updateSubscription, deleteSubscription } from '@/lib/db';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: Request) {
+  console.log("Webhook received");
   const body = await req.text();
   const headersList = headers();
   const signature = (await headersList).get('Stripe-Signature');
 
   if (!signature) {
+    console.log("No stripe signature found");
     return new NextResponse('No signature found', { status: 400 });
   }
 
@@ -22,39 +25,72 @@ export async function POST(req: Request) {
       signature,
       webhookSecret
     );
+    console.log("Webhook event constructed successfully:", event.type);
+    console.log("Event data:", JSON.stringify(event.data.object, null, 2));
   } catch (err: unknown) {
+    console.error("Webhook construction error:", err);
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     return new NextResponse(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
-  // Get subscription details
-  const subscription = await stripe.subscriptions.retrieve(
-    session.subscription as string
-  );
+        const session = event.data.object as Stripe.Checkout.Session;
+        const subscription = await stripe.subscriptions.retrieve(
+          session.subscription as string
+        );
 
-  // Calculate expiry date
-  const expiryDate = new Date(subscription.current_period_end * 1000).toISOString();
+        const userId = session.metadata?.userId;
+        if (!userId) {
+          throw new Error('No userId found in session metadata');
+        }
 
-  // Store the expiryDate in a database or send it to the frontend via a response
-  console.log(`Subscription expires on: ${expiryDate}`);
+        await updateSubscription(userId, {
+          subscriptionId: subscription.id,
+          customerId: session.customer,
+          planName: session.metadata?.planName || 'basic',
+          status: subscription.status,
+          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          cancelAtPeriodEnd: subscription.cancel_at_period_end
+        });
+        break;
+      }
 
-  // If integrating with a database, you can save the expiryDate here
-  // Example:
-  // await database.saveSubscription({ userId, expiryDate });
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        // Find the userId from metadata or customer
+        const userId = subscription.metadata?.userId;
+        if (!userId) {
+          throw new Error('No userId found in subscription metadata');
+        }
 
-  break; // Ensure you exit the case block properly
-}
+        await updateSubscription(userId, {
+          subscriptionId: subscription.id,
+          status: subscription.status,
+          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+          planName: subscription.cancel_at_period_end ? 'basic' : subscription.metadata?.planName
+        });
+        break;
+      }
 
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const userId = subscription.metadata?.userId;
+        if (!userId) {
+          throw new Error('No userId found in subscription metadata');
+        }
+
+        await deleteSubscription(userId);
+        break;
+      }
     }
 
     return new NextResponse(null, { status: 200 });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('Webhook processing error:', errorMessage);
     return new NextResponse(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 }
