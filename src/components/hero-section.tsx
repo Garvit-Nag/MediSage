@@ -64,10 +64,10 @@ const HeroSection = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               <Link 
-                href="/get-started"
+                href="/analyse"
                 className="bg-[#14B8A6] text-white px-8 py-3 rounded-full text-lg hover:bg-[#129687] transition-all hover:scale-105 text-center"
               >
-                Get Started
+                Analyse Now
               </Link>
               <Link 
                 href="/learn-more"

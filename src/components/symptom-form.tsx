@@ -72,6 +72,7 @@ export default function SymptomForm() {
   };
 
   const handleSubmit = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await fetch(process.env.NEXT_PUBLIC_TRADITIONAL_ANALYSIS as string, {
       method: 'POST',
       headers: {

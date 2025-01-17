@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { UserRoundSearch, FileText, Microscope } from 'lucide-react';
+import Link from 'next/link';
 
 const HowItWorks = () => {
   const steps = [
@@ -103,9 +104,12 @@ const HowItWorks = () => {
           transition={{ delay: 1, duration: 0.5 }}
           className="text-center mt-12"
         >
-          <button className="bg-teal-500 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors duration-300 transform hover:scale-105">
-            Start Your Analysis Now
-          </button>
+          
+          <Link href="/analyse">
+            <button className="bg-teal-500 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors duration-300 transform hover:scale-105">
+              Start Your Analysis Now
+            </button>
+          </Link>
         </motion.div>
       </div>
     </div>

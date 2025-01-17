@@ -4,10 +4,9 @@ import { NextResponse } from 'next/server';
 import { getSubscription } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 
-export async function GET() {  // Removed unused request parameter
+export async function GET() {
   try {
-    // Get userId from Clerk auth
-    const { userId } = await auth();  // Added await here
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -15,6 +14,8 @@ export async function GET() {  // Removed unused request parameter
 
     // First check our database
     const dbSubscription = await getSubscription(userId);
+    
+    console.log('DB Subscription:', dbSubscription); // Add this log
 
     // If no subscription found in DB, return basic plan
     if (!dbSubscription) {
@@ -48,18 +49,17 @@ export async function GET() {  // Removed unused request parameter
 
         // Return active subscription details
         return NextResponse.json({
-          planName: dbSubscription.planName,
+          planName: dbSubscription.planName, // Keep the original planName from DB
           status: stripeSubscription.status,
           expiryDate: currentPeriodEnd.toISOString(),
           cancelAtPeriodEnd: isCanceled
         });
       } catch (stripeError) {
         console.error('Error verifying with Stripe:', stripeError);
-        // If Stripe verification fails, fall back to DB data
       }
     }
 
-    // Fallback to database information if Stripe verification fails or isn't available
+    // Fallback to database information
     return NextResponse.json({
       planName: dbSubscription.planName,
       status: dbSubscription.status,

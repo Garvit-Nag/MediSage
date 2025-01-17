@@ -22,10 +22,9 @@ export default function Navbar() {
 
   const navigationLinks = [
     { href: '/', label: 'Home' },
-    { href: '/features', label: 'Features' },
-    { href: '/how-it-works', label: 'How It Works' },
     { href: '/pricing', label: 'Pricing' },
-    { href: '/faq', label: 'FAQ' },
+    { href: '/analyse', label: 'Analyse Now' },
+    { href: '/disclaimer', label: 'Disclaimer' },
   ];
 
   const handleAuthClick = (view: 'sign-in' | 'sign-up') => {
