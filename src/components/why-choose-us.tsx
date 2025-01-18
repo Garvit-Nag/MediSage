@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 // File: src/components/why-choose-us.tsx
 "use client";
 import { useEffect, useState } from "react";
@@ -46,15 +47,15 @@ export function WhyChooseUs() {
   }, [timer]);
 
   return (
-    <section className="w-full bg-white py-20 dark:bg-[#1E293B]">
+    <section className="w-full py-16 bg-[#1E293B]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center mb-16">
-          <h2 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl">
-            Why Choose Our Platform
-          </h2>
-          <p className="mt-4 text-lg leading-8 text-neutral-600 dark:text-neutral-400">
-            Comprehensive health analysis backed by cutting-edge technology
-          </p>
+        <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+  Why Choose Our Platform
+</h2>
+<p className="mt-4 text-lg leading-8 text-neutral-400">
+  Comprehensive health analysis backed by cutting-edge technology
+</p>
         </div>
 
         {/* Mobile Layout */}

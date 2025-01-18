@@ -77,7 +77,7 @@ export default function SymptomForm() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('http://localhost:8000/analyze/traditional', {
+      const response = await fetch(process.env.NEXT_PUBLIC_TRADITIONAL_ANALYSIS!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,17 +89,15 @@ export default function SymptomForm() {
           duration: formData.duration
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-  
+
       const data = await response.json();
-      // Redirect to results page with the data
       router.push(`/results?type=traditional&data=${encodeURIComponent(JSON.stringify(data))}`);
     } catch (error) {
       console.error('Error:', error);
-      // Handle error appropriately (show error message to user)
     }
   };
 
@@ -115,7 +113,7 @@ export default function SymptomForm() {
             transition={{ duration: 0.5 }}
           />
         </div>
-        
+
         {[1, 2, 3].map((number) => (
           <div key={number} className="relative z-10">
             <motion.div
@@ -158,7 +156,7 @@ export default function SymptomForm() {
                     placeholder="Type a symptom and press Enter"
                     className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20 outline-none transition-all"
                   />
-                  
+
                   <div className="flex flex-wrap gap-2">
                     {COMMON_SYMPTOMS.map((symptom) => (
                       <button
@@ -218,9 +216,24 @@ export default function SymptomForm() {
                   >
                     -
                   </motion.button>
-                  <span className="text-5xl font-bold w-24 text-center">
-                    {formData.age}
-                  </span>
+                  <div className="relative w-24">
+                  <input
+  type="number"
+  value={formData.age}
+  onChange={(e) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value)) {
+      setFormData(prev => ({
+        ...prev,
+        age: Math.max(0, Math.min(120, value))
+      }));
+    }
+  }}
+  className="text-4xl font-semibold w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 rounded-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+  min="0"
+  max="120"
+/>
+                  </div>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleAgeChange(1)}
@@ -290,7 +303,7 @@ export default function SymptomForm() {
         ) : (
           <div /> // Empty div to maintain spacing
         )}
-        
+
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={step < 3 ? handleNext : handleSubmit}

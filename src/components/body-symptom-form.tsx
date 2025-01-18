@@ -63,36 +63,35 @@ export default function BodySymptomForm() {
 
   const router = useRouter();
 
-const handleSubmit = async () => {
-  try {
-    const response = await fetch('http://localhost:8000/analyze/body-based', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        age: formData.age,
-        gender: formData.gender,
-        body_parts: formData.body_parts,
-        symptom_types: formData.symptom_types,
-        severity: formData.severity,
-        duration: formData.duration,
-        description: formData.description
-      }),
-    });
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(process.env.NEXT_PUBLIC_BODY_ANALYSER!, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          age: formData.age,
+          gender: formData.gender,
+          body_parts: formData.body_parts,
+          symptom_types: formData.symptom_types,
+          severity: formData.severity,
+          duration: formData.duration,
+          description: formData.description
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      router.push(`/results?type=body-based&data=${encodeURIComponent(JSON.stringify(data))}`);
+    } catch (error) {
+      console.error('Error:', error);
     }
+  };
 
-    const data = await response.json();
-    // Redirect to results page with the data
-    router.push(`/results?type=body-based&data=${encodeURIComponent(JSON.stringify(data))}`);
-  } catch (error) {
-    console.error('Error:', error);
-    // Handle error appropriately (show error message to user)
-  }
-};
 
   return (
     <div className="bg-white rounded-lg shadow-xl p-6 relative font-sans">
@@ -106,15 +105,15 @@ const handleSubmit = async () => {
             transition={{ duration: 0.5 }}
           />
         </div>
-        
+
         {[1, 2, 3].map((number) => (
           <div key={number} className="relative z-10">
             <motion.div
               className={`w-10 h-10 rounded-full flex items-center justify-center text-sm 
-                ${number === step 
-                  ? 'bg-[#14B8A6] text-white' 
-                  : number < step 
-                    ? 'bg-[#14B8A6] text-white' 
+                ${number === step
+                  ? 'bg-[#14B8A6] text-white'
+                  : number < step
+                    ? 'bg-[#14B8A6] text-white'
                     : 'bg-gray-200 text-gray-600'}`}
               initial={false}
               animate={{
@@ -124,7 +123,7 @@ const handleSubmit = async () => {
             >
               {number}
             </motion.div>
-            <div 
+            <div
               className={`absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm font-medium
                 ${number <= step ? 'text-[#14B8A6]' : 'text-gray-600'}`}
             >
@@ -154,9 +153,24 @@ const handleSubmit = async () => {
                   >
                     -
                   </button>
-                  <span className="text-4xl font-semibold w-24 text-center">
-                    {formData.age}
-                  </span>
+                  <div className="relative w-24">
+                    <input
+                      type="number"
+                      value={formData.age}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        if (!isNaN(value)) {
+                          setFormData(prev => ({
+                            ...prev,
+                            age: Math.max(0, Math.min(120, value))
+                          }));
+                        }
+                      }}
+                      className="text-4xl font-semibold w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 rounded-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      min="0"
+                      max="120"
+                    />
+                  </div>
                   <button
                     onClick={() => handleAgeChange(1)}
                     className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 text-2xl"

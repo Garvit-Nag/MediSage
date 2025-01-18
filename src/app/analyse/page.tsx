@@ -2,13 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Crown } from 'lucide-react';
+import { ArrowLeft, Crown, AlertTriangle  } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import { useAuth } from '@clerk/nextjs';
 import { AuthModal } from '@/components/auth/auth-modal';
+import { loadStripe } from '@stripe/stripe-js';
 
 
 interface SubscriptionData {
@@ -77,6 +78,50 @@ export default function AnalysisPage() {
     (subscription?.planName?.toLowerCase().includes('clinical') || 
      subscription?.planName?.toLowerCase() === 'clinical plan' ||
      subscription?.planName?.toLowerCase() === 'clinical');
+
+     const handleDirectCheckout = async (planType: 'professional' | 'clinical') => {
+      if (!isSignedIn) {
+        setIsAuthModalOpen(true);
+        return;
+      }
+  
+      const priceId = planType === 'professional' 
+        ? process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PRICE_ID 
+        : process.env.NEXT_PUBLIC_STRIPE_CLINICAL_PRICE_ID;
+  
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            priceId, 
+            planName: planType === 'professional' ? 'Professional Plan' : 'Clinical Plan',
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create checkout session');
+        }
+  
+        const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+        
+        if (!stripe) {
+          throw new Error('Stripe not initialized');
+        }
+  
+        await stripe.redirectToCheckout({ sessionId: data.sessionId });
+      } catch (error) {
+        console.error('Error:', error);
+        setError('Failed to process checkout. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
   const handleAnalysisClick = async (type: 'holistic' | 'anatomical') => {
     if (!isSignedIn) {
@@ -156,7 +201,24 @@ export default function AnalysisPage() {
           Back
         </motion.button>
 
-        {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertTriangle className="text-amber-500 w-6 h-6" />
+              <p className="text-amber-800 font-medium">{error}</p>
+            </div>
+            <button
+              onClick={() => handleDirectCheckout('professional')}
+              className="bg-amber-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-amber-600 transition-colors"
+            >
+              Upgrade to Professional
+            </button>
+          </motion.div>
+        )}
 
         <motion.h1
           className="text-4xl font-bold text-gray-900 mb-16 text-center"
@@ -196,10 +258,27 @@ export default function AnalysisPage() {
               <p className="text-gray-600 text-lg leading-relaxed">
                 Comprehensive analysis of multiple symptoms for a complete health evaluation.
               </p>
-              {subscription?.planName?.toLowerCase() === 'basic' && analysisLimit && (
-                <div className="mt-6 text-[#14B8A6] font-medium">
-                  Analyses remaining today: {analysisLimit.remaining} / 5
-                </div>
+              {subscription?.planName?.toLowerCase() === 'basic' && 
+               analysisLimit?.remaining === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="absolute inset-0 bg-amber-50/90 backdrop-blur-sm flex flex-col items-center justify-center p-8"
+                >
+                  <AlertTriangle className="text-amber-500 w-14 h-14 mb-6" />
+                  <h3 className="text-xl font-bold text-amber-800 mb-3 text-center">
+                    Daily Analysis Limit Reached
+                  </h3>
+                  <button 
+                    className="bg-amber-500 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:bg-amber-600 transition-colors duration-300 flex items-center space-x-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDirectCheckout('professional');
+                    }}
+                  >
+                    <span>Upgrade to Professional</span>
+                  </button>
+                </motion.div>
               )}
             </motion.div>
 
@@ -244,10 +323,10 @@ export default function AnalysisPage() {
                     >
                       <Crown className="text-[#14B8A6] w-14 h-14 mb-6" />
                       <button 
-                        className="bg-[#14B8A6] text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:bg-[#0E9888] transition-colors duration-300 flex items-center space-x-3 cursor-pointer"
+                        className="bg-[#14B8A6] text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:bg-[#0E9888] transition-colors duration-300 flex items-center space-x-3"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push('/pricing');
+                          handleDirectCheckout('clinical');
                         }}
                       >
                         <span>Upgrade to Clinical Plan</span>

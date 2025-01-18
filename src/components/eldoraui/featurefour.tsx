@@ -22,7 +22,7 @@ export function TextComponent({
       className={cn(
         "transform-gpu rounded-lg border transition-all",
         isOpen
-        ? "border-neutral-500/10 bg-gradient-to-b from-neutral-200/15 to-neutral-200/5 dark:border-neutral-500/15 dark:from-[#2E3A48]/30 dark:to-[#374151]/15 dark:shadow-[2px_4px_25px_0px_rgba(46,58,72,0.1)_inset]"
+        ? "border-neutral-500/15 from-[#2E3A48]/30 to-[#374151]/15 dark:shadow-[2px_4px_25px_0px_rgba(46,58,72,0.1)_inset]"
         : "scale-90 border-transparent opacity-75",
       )}
     >
@@ -37,7 +37,7 @@ export function TextComponent({
 
         <h2
   className={cn(
-    "text-left text-xl font-medium text-neutral-500 dark:text-[#E5E7EB]" // Slightly lighter gray
+    "text-left text-xl font-medium text-[#E5E7EB]" // Slightly lighter gray
   )}
 >
   {title}
@@ -46,7 +46,7 @@ export function TextComponent({
       </div>
       <div
         className={cn(
-          "w-full transform-gpu overflow-hidden text-left text-neutral-600 transition-all duration-500 dark:text-[#9CA3AF]", // Softer gray
+          "w-full transform-gpu overflow-hidden text-left  transition-all duration-500 text-[#9CA3AF]", // Softer gray
           isOpen ? " max-h-64" : "max-h-0",
         )}
       >
