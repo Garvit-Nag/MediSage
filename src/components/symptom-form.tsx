@@ -217,22 +217,22 @@ export default function SymptomForm() {
                     -
                   </motion.button>
                   <div className="relative w-24">
-                  <input
-  type="number"
-  value={formData.age}
-  onChange={(e) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value)) {
-      setFormData(prev => ({
-        ...prev,
-        age: Math.max(0, Math.min(120, value))
-      }));
-    }
-  }}
-  className="text-4xl font-semibold w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 rounded-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-  min="0"
-  max="120"
-/>
+                    <input
+                      type="number"
+                      value={formData.age}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        if (!isNaN(value)) {
+                          setFormData(prev => ({
+                            ...prev,
+                            age: Math.max(0, Math.min(120, value))
+                          }));
+                        }
+                      }}
+                      className="text-4xl font-semibold w-full text-center bg-transparent focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 rounded-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      min="0"
+                      max="120"
+                    />
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
