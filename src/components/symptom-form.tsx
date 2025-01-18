@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
 
 interface FormData {
   symptoms: string[];
@@ -71,21 +73,34 @@ export default function SymptomForm() {
     }));
   };
 
+  const router = useRouter();
+
   const handleSubmit = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const response = await fetch(process.env.NEXT_PUBLIC_TRADITIONAL_ANALYSIS as string, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        symptoms: formData.symptoms,
-        age: formData.age,
-        gender: formData.gender,
-        duration: formData.duration
-      }),
-    });
-    // Handle response
+    try {
+      const response = await fetch('http://localhost:8000/analyze/traditional', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          symptoms: formData.symptoms,
+          age: formData.age,
+          gender: formData.gender,
+          duration: formData.duration
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      // Redirect to results page with the data
+      router.push(`/results?type=traditional&data=${encodeURIComponent(JSON.stringify(data))}`);
+    } catch (error) {
+      console.error('Error:', error);
+      // Handle error appropriately (show error message to user)
+    }
   };
 
   return (

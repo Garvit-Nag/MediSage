@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import BodyPartSelector from './bodyhighlighter';
+import { useRouter } from 'next/navigation';
 
 interface FormData {
   age: number;
@@ -60,28 +61,38 @@ export default function BodySymptomForm() {
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      await fetch(process.env.NEXT_PUBLIC_BODY_ANALYSER as string, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      }).then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      }).then(data => {
-        // Handle successful response
-        console.log('Success:', data);
-      });
-    } catch (error) {
-      // Handle errors
-      console.error('Error:', error);
+  const router = useRouter();
+
+const handleSubmit = async () => {
+  try {
+    const response = await fetch('http://localhost:8000/analyze/body-based', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        age: formData.age,
+        gender: formData.gender,
+        body_parts: formData.body_parts,
+        symptom_types: formData.symptom_types,
+        severity: formData.severity,
+        duration: formData.duration,
+        description: formData.description
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-  };
+
+    const data = await response.json();
+    // Redirect to results page with the data
+    router.push(`/results?type=body-based&data=${encodeURIComponent(JSON.stringify(data))}`);
+  } catch (error) {
+    console.error('Error:', error);
+    // Handle error appropriately (show error message to user)
+  }
+};
 
   return (
     <div className="bg-white rounded-lg shadow-xl p-6 relative font-sans">
