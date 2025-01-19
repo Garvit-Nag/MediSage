@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import BodyPartSelector from './bodyhighlighter';
 import { useRouter } from 'next/navigation';
+import Preloader from './preloader';  
 
 interface FormData {
   age: number;
@@ -28,6 +29,7 @@ export default function BodySymptomForm() {
     description: ''
   });
   const [symptomInput, setSymptomInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNext = () => {
     if (step < 3) setStep(step + 1);
@@ -64,6 +66,7 @@ export default function BodySymptomForm() {
   const router = useRouter();
 
   const handleSubmit = async () => {
+    setIsLoading(true); // Start loading
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_BODY_ANALYSER!, {
         method: 'POST',
@@ -80,17 +83,22 @@ export default function BodySymptomForm() {
           description: formData.description
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
+  
       const data = await response.json();
       router.push(`/results?type=body-based&data=${encodeURIComponent(JSON.stringify(data))}`);
     } catch (error) {
       console.error('Error:', error);
+      setIsLoading(false); // Stop loading on error
     }
   };
+  
+  if (isLoading) {
+    return <Preloader />;
+  }
 
 
   return (

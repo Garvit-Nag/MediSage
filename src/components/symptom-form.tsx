@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Preloader from './preloader'; 
 
 
 interface FormData {
@@ -34,6 +35,7 @@ export default function SymptomForm() {
     duration: ''
   });
   const [symptomInput, setSymptomInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNext = () => {
     if (step < 3) setStep(step + 1);
@@ -76,6 +78,7 @@ export default function SymptomForm() {
   const router = useRouter();
 
   const handleSubmit = async () => {
+    setIsLoading(true); // Start loading
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_TRADITIONAL_ANALYSIS!, {
         method: 'POST',
@@ -89,18 +92,23 @@ export default function SymptomForm() {
           duration: formData.duration
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
+  
       const data = await response.json();
       router.push(`/results?type=traditional&data=${encodeURIComponent(JSON.stringify(data))}`);
     } catch (error) {
       console.error('Error:', error);
+      setIsLoading(false); // Stop loading on error
     }
   };
 
+  if (isLoading) {
+    return <Preloader />;
+  }
+  
   return (
     <div className="bg-white rounded-lg shadow-xl p-8 relative max-w-3xl mx-auto">
       {/* Progress Steps */}

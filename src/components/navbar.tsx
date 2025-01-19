@@ -60,9 +60,10 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-gray-100 hover:text-white px-4 py-2 text-base font-medium transition-colors rounded-md hover:bg-gray-800"
+                  className="text-gray-100 hover:text-white px-4 py-2 text-base font-medium transition-all duration-300 rounded-md group relative hover:-translate-y-0.5 hover:scale-105"
                 >
                   {link.label}
+                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-[#14B8A6] group-hover:w-full group-hover:left-0 transition-all duration-300" />
                 </Link>
               ))}
               
@@ -77,7 +78,7 @@ export default function Navbar() {
                     },
                   }}
                   userProfileMode="navigation"
-                  userProfileUrl="/account"
+                  userProfileUrl="/dashboard"
                 />
               ) : (
                 <button 
