@@ -44,7 +44,7 @@ export default function SuccessPage() {
     
     if (sessionId && user?.emailAddresses?.[0]?.emailAddress) {
       // Get subscription details from your backend
-      fetch(`/api/verify-subscription?session_id=${sessionId}`)
+      fetch(`${window.location.origin}/api/verify-subscription?session_id=${sessionId}`)
         .then(res => res.json())
         .then(data => {
           // Store in session storage
