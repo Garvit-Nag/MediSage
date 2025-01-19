@@ -1,11 +1,13 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import MedicalReport from '@/components/display-results';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 
-export default function ResultsPage() {
+// Separate the data-dependent part into its own component
+function Results() {
   const searchParams = useSearchParams();
   const type = searchParams.get('type');
   const encodedData = searchParams.get('data');
@@ -17,21 +19,29 @@ export default function ResultsPage() {
   const data = JSON.parse(decodeURIComponent(encodedData));
 
   return (
+    <MedicalReport
+      data={data}
+      type={type as 'traditional' | 'body-based'}
+    />
+  );
+}
+
+// Main page component
+export default function ResultsPage() {
+  return (
     <div className="min-h-screen bg-gray-100">
       <div className="print:hidden">
         <Navbar />
       </div>
       <div className="pt-14 print:pt-0">
-        <MedicalReport
-          data={data}
-          type={type as 'traditional' | 'body-based'}
-        />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Results />
+        </Suspense>
       </div>
       <div className="print:hidden">
         <Footer />
       </div>
 
-      {/* Print-specific styles */}
       <style jsx global>{`
         @media print {
           html, body {
