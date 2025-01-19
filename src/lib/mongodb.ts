@@ -1,4 +1,5 @@
-// MediSage\src\lib\mongodb.ts
+/* eslint-disable no-var */
+
 import { MongoClient } from 'mongodb';
 
 if (!process.env.MONGODB_URI) {
@@ -10,7 +11,6 @@ const options = {};
 
 // Add type declaration for global _mongoClientPromise
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 

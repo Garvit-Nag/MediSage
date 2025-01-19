@@ -1,4 +1,3 @@
-// components/modals/policy-modal.tsx
 import { JSX, useEffect } from 'react';
 
 interface PolicyModalProps {

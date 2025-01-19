@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-// File: src/components/why-choose-us.tsx
+
 "use client";
 import { useEffect, useState } from "react";
 import { TextComponent } from "@/components/eldoraui/featurefour";

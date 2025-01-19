@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState, useEffect } from 'react';
 import { useAuth, useUser } from '@clerk/nextjs';
 import { Crown, ChevronRight, Loader2, CreditCard, UserCheck, ArrowLeftRight } from 'lucide-react';

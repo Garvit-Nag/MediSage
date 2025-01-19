@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import clientPromise from './mongodb';
 
 
@@ -62,7 +63,6 @@ export async function deleteSubscription(userId: string) {
     return db.collection('subscriptions').deleteOne({ userId });
   }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateSubscription(userId: string, subscriptionData: any) {
   console.log("Updating subscription for user:", userId); // Add this
   console.log("Subscription data:", subscriptionData);
