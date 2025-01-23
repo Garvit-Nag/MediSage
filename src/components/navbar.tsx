@@ -41,7 +41,7 @@ export default function Navbar() {
       >
         <div className="max-w-8xl mx-auto px-6 sm:px-8 lg:px-14">
           <div className="flex items-center justify-between h-16 sm:h-20">
-            <div className="flex-shrink-0 pl-4 min-[1150px]:pl-4 w-full min-[1150px]:w-auto flex min-[1150px]:block justify-center">
+          <div className="flex-shrink-0 pl-4 min-[1150px]:pl-4 w-auto flex items-center justify-between">
               <Link href="/" className="flex items-center">
                 <Image 
                   src="/logo.png" 
