@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { 
@@ -178,8 +178,25 @@ const Section: React.FC<SectionProps> = ({
   collapsible = false 
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isWideScreen, setIsWideScreen] = useState(false);
 
-  const baseClasses = "p-6 rounded-lg shadow-lg transition-all duration-300";
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsWideScreen(window.innerWidth > 768);
+    };
+
+    // Check initial screen size
+    checkScreenSize();
+
+    // Add resize listener
+    window.addEventListener('resize', checkScreenSize);
+
+    // Cleanup listener
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  const baseClasses = "p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300";
+  const shouldShowCollapseButton = collapsible && isWideScreen;
   const variantClasses = {
     default: "bg-white border border-[#14B8A6]/20 hover:border-[#14B8A6]/40",
     warning: "bg-red-50 border border-red-200 hover:bg-red-100",
@@ -196,7 +213,7 @@ const Section: React.FC<SectionProps> = ({
           <span className="text-[#14B8A6]">{icon}</span>
           <h2 className="text-xl font-bold text-[#1E293B]">{title}</h2>
         </div>
-        {collapsible && (
+        {shouldShowCollapseButton && (
           <button
             id={buttonId}
             aria-expanded={!isCollapsed}
@@ -434,7 +451,7 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
                     aria-label={`Condition: ${condition.name}`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-[#1E293B]">{condition.name}</h3>
+                      <h3 className="text-lg font-semibold text-[#1E293B] break-words hyphens-auto">{condition.name}</h3>
                       <span 
                         className="px-3 py-1 rounded-full text-sm font-medium bg-[#14B8A6]/10 text-[#14B8A6]"
                         role="status"
@@ -453,7 +470,7 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
                     {condition.complications.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-gray-200">
                         <h4 className="text-sm font-medium text-[#1E293B] mb-2">Potential Complications:</h4>
-                        <ul className="grid grid-cols-2 gap-2">
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {condition.complications.map((complication, idx) => (
                             <li 
                               key={idx}
@@ -569,7 +586,7 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
               icon={<AlertTriangle className="h-6 w-6 flex-shrink-0" />}
               variant="warning"
             >
-              <ul className="grid grid-cols-2 gap-4">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {traditionalData.severity_indicators.warning_signs.map((sign, idx) => (
                   <li 
                     key={idx} 
@@ -766,7 +783,7 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
                     aria-label={`Condition: ${condition.name}`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-[#1E293B]">{condition.name}</h3>
+                      <h3 className="text-lg font-semibold text-[#1E293B] break-words hyphens-auto">{condition.name}</h3>
                       <span className="px-3 py-1 rounded-full text-sm font-medium bg-[#14B8A6]/10 text-[#14B8A6]">
                         {condition.likelihood}
                       </span>
@@ -791,7 +808,7 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
                 icon={<AlertTriangle className="h-6 w-6 flex-shrink-0" />}
                 variant="warning"
               >
-                <ul className="grid grid-cols-2 gap-4">
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {bodyData.clinical_considerations.red_flags.map((flag, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-red-600 p-3 bg-white/50 rounded-lg shadow-sm hover:bg-white/70 transition-colors">
                       <AlertTriangle className="h-4 w-4 flex-shrink-0" />
@@ -869,17 +886,8 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
       };
     
       const renderPagination = () => (
-        <div className="border-t border-gray-200 p-6 flex justify-between items-center">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:text-[#14B8A6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="h-5 w-5" />
-            Previous
-          </button>
-          <div className="flex items-center gap-2" role="navigation" aria-label="Page navigation">
+        <div className="border-t border-gray-200 p-6 flex flex-col items-center">
+          <div className="flex items-center gap-2 mb-4" role="navigation" aria-label="Page navigation">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <button
                 key={page}
@@ -896,15 +904,26 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
               </button>
             ))}
           </div>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:text-[#14B8A6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Next page"
-          >
-            Next
-            <ChevronRight className="h-5 w-5" />
-          </button>
+          <div className="flex w-full justify-between">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:text-[#14B8A6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:text-[#14B8A6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Next page"
+            >
+              Next
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       );
     
