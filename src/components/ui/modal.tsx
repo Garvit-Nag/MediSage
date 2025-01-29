@@ -8,7 +8,7 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
+export const Modal = ({ isOpen, children }: ModalProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,6 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div 
         className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div className="relative z-50">
         {children}
