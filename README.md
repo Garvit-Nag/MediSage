@@ -144,7 +144,7 @@ GEMINI_API_KEY
 - Clerk for authentication
 - Stripe for payment processing
 - Google AI for Gemini 1.5 model
-- shadcn/ui for UI components
+- shadcn/ui AND Eldora/ui for UI components
 
 ## Contact
 
