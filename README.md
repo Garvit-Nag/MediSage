@@ -3,6 +3,7 @@
 ## Overview
 
 MediSage is a sophisticated medical symptom analysis platform that leverages artificial intelligence to provide comprehensive health insights. The platform offers two distinct analysis methods:
+ou can view the live version of the website here: [MediSage](https://medi-sage.vercel.app)
 
 - **Holistic Health Assessment**: Traditional multi-symptom analysis
 - **Anatomical Precision Analysis**: Detailed body-based assessment
