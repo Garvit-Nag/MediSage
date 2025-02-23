@@ -292,6 +292,7 @@ export default function AnalysisPage() {
               }}
               onHoverStart={() => !hasClinicalAccess && setHoveredCard(2)}
               onHoverEnd={() => setHoveredCard(null)}
+              onTouchStart={() => !hasClinicalAccess && setHoveredCard(2)}
               onClick={() => handleAnalysisClick('anatomical')}
               className={`bg-white border border-gray-200 rounded-2xl p-8 shadow-lg relative overflow-hidden group hover:border-[#14B8A6] hover:shadow-xl ${hasClinicalAccess ? 'cursor-pointer' : 'cursor-default'}`}
             >
@@ -331,6 +332,15 @@ export default function AnalysisPage() {
                       >
                         <span>Upgrade to Clinical Plan</span>
                       </button>
+                      <button 
+  className="mt-4 text-gray-500 hover:text-gray-700 md:hidden"
+  onClick={(e) => {
+    e.stopPropagation();
+    setHoveredCard(null);
+  }}
+>
+  Close
+</button>
                     </motion.div>
                   )}
                 </AnimatePresence>
