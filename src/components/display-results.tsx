@@ -450,10 +450,10 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
                     role="article"
                     aria-label={`Condition: ${condition.name}`}
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                       <h3 className="text-lg font-semibold text-[#1E293B] break-words hyphens-auto">{condition.name}</h3>
                       <span 
-                        className="px-3 py-1 rounded-full text-sm font-medium bg-[#14B8A6]/10 text-[#14B8A6]"
+                        className="px-3 py-1 rounded-full text-sm font-medium bg-[#14B8A6]/10 text-[#14B8A6] w-fit"
                         role="status"
                         aria-label={`Likelihood: ${condition.likelihood}`}
                       >
@@ -782,9 +782,9 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
                     role="article"
                     aria-label={`Condition: ${condition.name}`}
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                       <h3 className="text-lg font-semibold text-[#1E293B] break-words hyphens-auto">{condition.name}</h3>
-                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-[#14B8A6]/10 text-[#14B8A6]">
+                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-[#14B8A6]/10 text-[#14B8A6] w-fit">
                         {condition.likelihood}
                       </span>
                     </div>
@@ -964,13 +964,13 @@ const MedicalReport: React.FC<MedicalReportProps> = ({ data, type, loading = fal
 
     {/* Print button */}
     <button
-      onClick={handlePrint}
-      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#14B8A6] text-white hover:bg-[#14B8A6]/90 transition-colors print:hidden"
-      aria-label="Print report"
-    >
-      <Printer className="h-5 w-5" />
-      Print Report
-    </button>
+  onClick={handlePrint}
+  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#14B8A6] text-white hover:bg-[#14B8A6]/90 transition-colors print:hidden"
+  aria-label="Print report"
+>
+  <Printer className="h-5 w-5" />
+  <span className="hidden sm:inline">Print Report</span>
+</button>
   </div>
 </div>
 
