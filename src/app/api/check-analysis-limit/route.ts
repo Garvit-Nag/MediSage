@@ -38,6 +38,8 @@ export async function GET() {
     const count = await redis.get<number>(key) || 0;
     const limit = 5;
 
+    await redis.set('keepalive', new Date().toISOString());
+
     return NextResponse.json({
       allowed: count < limit,
       remaining: Math.max(0, limit - count),

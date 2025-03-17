@@ -1,0 +1,9 @@
+{
+    "crons": [
+      {
+        "path": "/api/check-analysis-limit",
+        "schedule": "0 */6 * * *"
+      }
+    ]
+  }
+  
