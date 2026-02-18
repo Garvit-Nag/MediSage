@@ -6,6 +6,7 @@ from ..utils.contextisation import generate_traditional_prompt, generate_body_ba
 
 class SymptomAnalyzer:
     def __init__(self):
+        ## updating the model
         self.model = genai.GenerativeModel('gemini-2.5-flash')
         
     async def analyze_traditional(self, symptoms: List[str], age: int, gender: str, duration: str) -> Dict:
