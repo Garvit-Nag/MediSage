@@ -2,11 +2,11 @@ from typing import Dict, List
 import json
 import google.generativeai as genai
 from fastapi import HTTPException
-from ..utils.prompt_templates import generate_traditional_prompt, generate_body_based_prompt
+from ..utils.contextisation import generate_traditional_prompt, generate_body_based_prompt
 
 class SymptomAnalyzer:
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         
     async def analyze_traditional(self, symptoms: List[str], age: int, gender: str, duration: str) -> Dict:
         try:
