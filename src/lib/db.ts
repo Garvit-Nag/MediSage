@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import clientPromise from './mongodb';
 
 
@@ -80,10 +81,15 @@ export async function updateSubscription(userId: string, subscriptionData: any) 
   const oldSubscription = await getSubscription(userId);
   console.log("Existing subscription:", oldSubscription);
   if (oldSubscription) {
-    await db.collection('subscription_history').insertOne({
-      ...oldSubscription,
-      endedAt: new Date()
-    });
+    // Only archive if the subscription is actually changing
+    if (oldSubscription.subscriptionId !== subscriptionData.subscriptionId) {
+      // Remove _id to avoid duplicate key errors
+      const { _id: _removedId, ...subscriptionWithoutId } = oldSubscription;
+      await db.collection('subscription_history').insertOne({
+        ...subscriptionWithoutId,
+        endedAt: new Date()
+      });
+    }
   }
 
   // Update current subscription
