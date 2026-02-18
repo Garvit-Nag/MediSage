@@ -1,10 +1,10 @@
 // MediSage\src\app\api\verify-subscription\route.ts
 import { stripe } from '@/lib/stripe';
-import { NextResponse } from 'next/server';
-import { getSubscription } from '@/lib/db';
+import { NextResponse, NextRequest } from 'next/server';
+import { getSubscription, updateSubscription } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const { userId } = await auth();
     
@@ -12,10 +12,48 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // First check our database
+    // If session_id is provided (from success page), check Stripe directly
+    // This bypasses the webhook race condition
+    const sessionId = req.nextUrl.searchParams.get('session_id');
+
+    if (sessionId) {
+      try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        
+        if (session.payment_status === 'paid' && session.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(
+            session.subscription as string
+          );
+
+          // Force-update MongoDB immediately (don't wait for webhook)
+          await updateSubscription(userId, {
+            subscriptionId: subscription.id,
+            customerId: session.customer,
+            planName: session.metadata?.planName || 'basic',
+            status: subscription.status,
+            currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            cancelAtPeriodEnd: subscription.cancel_at_period_end
+          });
+
+          console.log('Direct Stripe check: subscription verified and DB updated for user:', userId);
+
+          return NextResponse.json({
+            planName: session.metadata?.planName || 'basic',
+            status: subscription.status,
+            expiryDate: new Date(subscription.current_period_end * 1000).toISOString(),
+            cancelAtPeriodEnd: subscription.cancel_at_period_end
+          });
+        }
+      } catch (sessionError) {
+        console.error('Error checking session directly:', sessionError);
+        // Fall through to normal DB check below
+      }
+    }
+
+    // Normal flow: check our database
     const dbSubscription = await getSubscription(userId);
     
-    console.log('DB Subscription:', dbSubscription); // Add this log
+    console.log('DB Subscription:', dbSubscription);
 
     // If no subscription found in DB, return basic plan
     if (!dbSubscription) {
