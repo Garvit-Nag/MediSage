@@ -37,6 +37,12 @@ export async function POST(req: Request) {
           userId,
           planName,
         },
+        subscription_data: {
+          metadata: {
+            userId,
+            planName,
+          },
+        },
       });
 
       return NextResponse.json({ sessionId: session.id });
