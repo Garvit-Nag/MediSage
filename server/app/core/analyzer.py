@@ -6,7 +6,7 @@ from ..utils.prompt_templates import generate_traditional_prompt, generate_body_
 
 class SymptomAnalyzer:
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         
     async def analyze_traditional(self, symptoms: List[str], age: int, gender: str, duration: str) -> Dict:
         try:
