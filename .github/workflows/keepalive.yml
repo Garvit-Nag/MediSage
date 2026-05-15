@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Ping databases via HF Space
         run: |
-          curl -f --max-time 60 https://garvitcpp-medisage.hf.space/api/ping
+          curl -f --max-time 60 https://medi-sage.vercel.app/api/ping
